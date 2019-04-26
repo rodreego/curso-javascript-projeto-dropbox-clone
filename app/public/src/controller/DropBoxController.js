@@ -72,9 +72,21 @@ class DropBoxController{
         this.btnDelete.addEventListener('click',e =>{
 
             this.removeTask().then(responses =>{
-                console.log('responses');
+
+                responses.forEach(response=>{
+
+                    if(response.fields.key){
+
+                        this.getFirebaseRef().child(response.fields.key).remove();
+
+                    }
+
+                });                
+
             }).catch(err=>{
+
                 console.error(err);
+                
             });          
 
         }); 
