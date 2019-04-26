@@ -50,17 +50,21 @@ class DropBoxController{
 
             let file = JSON.parse(li.dataset.file);
 
+            let key = li.dataset.key;
+
+            //console.log(key);
+
             let formData = new FormData();
 
             formData.append('path',file.path);
 
-            formData.append('key',file.key);
+            formData.append('key',key);
 
-            promises.push(this.ajax('/file','DELETE',formData));
-
-            return Promise.all(promises);
+            promises.push(this.ajax('/file','DELETE',formData));            
 
         });
+
+        return Promise.all(promises);
     }
 
     initEvents(){
@@ -73,7 +77,9 @@ class DropBoxController{
                 console.error(err);
             });          
 
-        });
+        }); 
+
+        
 
         this.btnRename.addEventListener('click',e=>{
 
