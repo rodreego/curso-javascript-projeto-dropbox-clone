@@ -56,15 +56,27 @@ class DropBoxController{
 
             let key = li.dataset.key;
 
-            //console.log(key);
+           
+            promises.push(new Promise((resolve,reject)=>{
 
-            let formData = new FormData();
+                let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
 
-            formData.append('path',file.path);
+                fileRef.delete().then(()=>{
 
-            formData.append('key',key);
+                    resolve({
 
-            promises.push(this.ajax('/file','DELETE',formData));            
+                        fields:{
+                            key
+                        }
+
+                    });
+
+                }).catch(err=>{
+                    
+                    reject(err);
+                })
+
+            }));            
 
         });
 
@@ -163,13 +175,16 @@ class DropBoxController{
             this.btnSendFileEl.disabled = true;
             
             this.uploadTask(event.target.files).then(responses=> {
+                
                 responses.forEach(resp =>{
 
-                    
-                    this.getFirebaseRef().push().set(resp.files['input-file']);
-
-
-                });
+                    this.getFirebaseRef().push().set({
+                        name: resp.name,
+                        type: resp.contentType,
+                        path: data,
+                        size: resp.size
+                    })
+                })
 
                 this.uploadComplete();
                 
@@ -242,7 +257,7 @@ class DropBoxController{
         });
 
     }
-
+     
     uploadTask(files){
 
         let promises = [];
@@ -286,35 +301,7 @@ class DropBoxController{
         });
 
         return Promise.all(promises);
-
-    }
-
-
-
-
- 
-    uploadTask(files){
-
-        let promises = [];
-
-        [...files].forEach(file=>{
-
-            let formData = new FormData();
-
-            formData.append('input-file',file);
-
-             promises.push(this.ajax('/upload','POST', formData, ()=>{
-
-                this.uploadProgress(event,file);
-
-                }, ()=>{
-                    
-                    this.startUploadTime = Date.now();
-                }));            
-            
-        });
-
-        return Promise.all(promises);
+        
     }
 
     uploadProgress(event,file){
